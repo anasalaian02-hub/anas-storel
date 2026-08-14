@@ -9,6 +9,8 @@ import {
     getDocs,
     setDoc,
     addDoc,
+    updateDoc,
+    deleteDoc,
     collection
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
@@ -70,8 +72,6 @@ function setActive(btn) {
 // =========================
 async function openDashboard() {
     setActive(dashboardBtn);
-    
-    // عرض واجهة التحميل أولاً
     page.innerHTML = `
         <h2>مرحباً بك في لوحة تحكم Anas Store 👋</h2>
         <p>نظرة عامة ومباشرة على إحصائيات المتجر.</p>
@@ -81,7 +81,6 @@ async function openDashboard() {
     `;
 
     try {
-        // سحب وحساب بيانات المستخدمين والأموال
         const usersSnap = await getDocs(collection(db, "users"));
         let totalUsers = usersSnap.size;
         let totalBalances = 0;
@@ -93,12 +92,10 @@ async function openDashboard() {
             totalSpent += (data.spent || 0);
         });
 
-        // سحب باقي الإحصائيات
         const ordersSnap = await getDocs(collection(db, "orders"));
         const ticketsSnap = await getDocs(collection(db, "tickets"));
         const servicesSnap = await getDocs(collection(db, "services"));
 
-        // عرض الإحصائيات في مربعات أنيقة
         document.getElementById("dashboardStats").innerHTML = `
             <div style="background:#1e293b; padding:15px; border-radius:10px; text-align:center; border:1px solid #334155;">
                 <h3 style="color:#3b82f6; margin:0 0 10px 0; font-size:14px;">👥 إجمالي المستخدمين</h3>
@@ -202,51 +199,63 @@ async function openCategories() {
 }
 
 // =========================
-// 4. الخدمات (Services)
+// 4. الخدمات (Services - معدلة مع التعديل والحذف)
 // =========================
 async function openServices() {
     setActive(servicesBtn);
     page.innerHTML = `
         <h2>🛒 إدارة الخدمات</h2>
-        <p>إضافة خدمة رئيسية مع خياراتها وباقاتها المختلفة.</p>
+        <p>إضافة خدمة رئيسية مع خياراتها وباقاتها المختلفة، أو تعديل وحذف الخدمات السابقة.</p>
         <button id="showAddFormBtn" style="background:#2563eb; color:white; border:none; padding:12px 16px; border-radius:8px; cursor:pointer; margin-bottom:15px; font-weight:bold;">➕ إضافة خدمة جديدة</button>
         <div id="addServiceContainer"></div>
         <div id="servicesList" style="margin-top:20px; display:flex; flex-direction:column; gap:12px;">جاري التحميل...</div>
     `;
 
-    document.getElementById("showAddFormBtn").onclick = () => {
+    // دالة فتح نموذج الإضافة أو التعديل
+    window.renderServiceForm = (editId = null, existingData = null) => {
         const container = document.getElementById("addServiceContainer");
+        let nameVal = existingData ? existingData.name : "";
+        let descVal = existingData ? existingData.description : "";
+        
         container.innerHTML = `
             <div style="background:#0f172a; padding:15px; border-radius:10px; margin-bottom:20px; border:1px solid #334155;">
-                <h3 style="color:#3b82f6; margin-top:0; font-size:16px;">إضافة خدمة رئيسية</h3>
-                <input id="srvName" type="text" placeholder="اسم الخدمة (مثال: اشتراك كاب كات)" style="width:100%; padding:12px; margin-bottom:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">
-                <textarea id="srvDesc" placeholder="وصف عام للخدمة..." rows="2" style="width:100%; padding:12px; margin-bottom:15px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;"></textarea>
+                <h3 style="color:#3b82f6; margin-top:0; font-size:16px;">${editId ? 'تعديل الخدمة' : 'إضافة خدمة رئيسية'}</h3>
+                <input id="srvName" type="text" placeholder="اسم الخدمة (مثال: اشتراك كاب كات)" value="${nameVal}" style="width:100%; padding:12px; margin-bottom:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">
+                <textarea id="srvDesc" placeholder="وصف عام للخدمة..." rows="2" style="width:100%; padding:12px; margin-bottom:15px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">${descVal}</textarea>
                 
                 <h4 style="color:#3b82f6; margin:0 0 10px 0; font-size:14px;">خيارات / باقات الخدمة:</h4>
-                <div id="optionsContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;">
-                    <div class="option-row" style="display:flex; gap:8px;">
-                        <input type="text" placeholder="المدة أو النوع (مثال: سنة كاملة)" class="opt-title" style="flex:2; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">
-                        <input type="text" placeholder="السعر (مثال: 2$)" class="opt-price" style="flex:1; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">
-                    </div>
-                </div>
+                <div id="optionsContainer" style="display:flex; flex-direction:column; gap:8px; margin-bottom:10px;"></div>
                 <button id="addOptRowBtn" type="button" style="background:#334155; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-bottom:15px; font-size:13px;">➕ إضافة خيار آخر</button>
                 
-                <button id="saveServiceBtn" style="background:#10b981; color:white; border:none; padding:12px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold;">حفظ ونشر الخدمة وباقاتها</button>
+                <button id="saveServiceBtn" style="background:#10b981; color:white; border:none; padding:12px; width:100%; border-radius:8px; cursor:pointer; font-weight:bold;">${editId ? 'تحديث وحفظ التعديلات' : 'حفظ ونشر الخدمة وباقاتها'}</button>
             </div>
         `;
 
-        document.getElementById("addOptRowBtn").onclick = () => {
-            const optContainer = document.getElementById("optionsContainer");
+        const optContainer = document.getElementById("optionsContainer");
+
+        function addOptionRow(title = "", price = "") {
             const row = document.createElement("div");
             row.className = "option-row";
             row.style.display = "flex";
             row.style.gap = "8px";
             row.innerHTML = `
-                <input type="text" placeholder="المدة أو النوع (مثال: 3 شهور)" class="opt-title" style="flex:2; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">
-                <input type="text" placeholder="السعر (مثال: 1$)" class="opt-price" style="flex:1; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">
+                <input type="text" placeholder="المدة أو النوع (مثال: سنة كاملة)" value="${title}" class="opt-title" style="flex:2; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">
+                <input type="text" placeholder="السعر (مثال: 2$)" value="${price}" class="opt-price" style="flex:1; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;">
+                <button type="button" onclick="this.parentElement.remove()" style="background:#ef4444; color:white; border:none; padding:0 10px; border-radius:8px; cursor:pointer;">✕</button>
             `;
             optContainer.appendChild(row);
-        };
+        }
+
+        // إذا كنا نعدل خدمة موجودة، نعبي خياراتها القديمة
+        if (existingData && existingData.options && Array.isArray(existingData.options)) {
+            existingData.options.forEach(opt => {
+                addOptionRow(opt.title, opt.price);
+            });
+        } else {
+            addOptionRow(); // إضافة صف فارغ افتراضي لو جديدة
+        }
+
+        document.getElementById("addOptRowBtn").onclick = () => addOptionRow();
 
         document.getElementById("saveServiceBtn").onclick = async () => {
             const name = document.getElementById("srvName").value;
@@ -267,21 +276,35 @@ async function openServices() {
             }
 
             try {
-                await addDoc(collection(db, "services"), {
-                    name, description, options, createdAt: new Date()
-                });
-                alert("تمت إضافة الخدمة وباقاتها بنجاح ✅");
+                if (editId) {
+                    // تحديث خدمة موجودة
+                    await updateDoc(doc(db, "services", editId), {
+                        name, description, options
+                    });
+                    alert("تم تحديث الخدمة بنجاح ✅");
+                } else {
+                    // إضافة خدمة جديدة
+                    await addDoc(collection(db, "services"), {
+                        name, description, options, createdAt: new Date()
+                    });
+                    alert("تمت إضافة الخدمة وباقاتها بنجاح ✅");
+                }
                 openServices();
-            } catch (err) { alert("حدث خطأ أثناء الإضافة"); }
+            } catch (err) { alert("حدث خطأ أثناء الحفظ"); }
         };
     };
 
+    document.getElementById("showAddFormBtn").onclick = () => window.renderServiceForm();
+
+    // جلب وعرض الخدمات مع أزرار التعديل والحذف
     const list = document.getElementById("servicesList");
     try {
         const snap = await getDocs(collection(db, "services"));
         list.innerHTML = snap.empty ? "<p style='color:#94a3b8;'>لا توجد خدمات مضافة.</p>" : "";
+        
         snap.forEach(docSnap => {
             const d = docSnap.data();
+            const serviceId = docSnap.id;
             let optionsHtml = "";
             if (d.options && Array.isArray(d.options)) {
                 d.options.forEach(opt => {
@@ -291,18 +314,41 @@ async function openServices() {
                         </div>`;
                 });
             }
+
             list.innerHTML += `
-                <div style="background:#0f172a; padding:15px; border-radius:10px; border:1px solid #334155;">
+                <div style="background:#0f172a; padding:15px; border-radius:10px; border:1px solid #334155;" id="srv-card-${serviceId}">
                     <h3 style="margin:0 0 5px 0; color:#3b82f6; font-size:16px;">${d.name}</h3>
                     <p style="margin:0 0 10px 0; color:#94a3b8; font-size:13px;">${d.description || ""}</p>
                     <div style="border-top:1px solid #334155; padding-top:8px; margin-top:8px;">
                         <span style="font-size:12px; color:#94a3b8; font-weight:bold;">الخيارات / الباقات المتاحة:</span>
                         ${optionsHtml}
                     </div>
+                    <div style="display:flex; gap:10px; margin-top:15px;">
+                        <button onclick='window.editService("${serviceId}", ${JSON.stringify(d.name)}, ${JSON.stringify(d.description || "")}, ${JSON.stringify(d.options)})' style="flex:1; background:#f59e0b; color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px;">✏️ تعديل الخدمة</button>
+                        <button onclick='window.deleteService("${serviceId}")' style="flex:1; background:#ef4444; color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px;">🗑️ حذف الخدمة</button>
+                    </div>
                 </div>`;
         });
     } catch (err) { list.innerHTML = "<p style='color:red;'>فشل تحميل الخدمات.</p>"; }
 }
+
+// دوال التعديل والحذف العامة لتكون متاحة في النطاق العام
+window.editService = function(id, name, description, options) {
+    window.renderServiceForm(id, { name, description, options });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+window.deleteService = async function(id) {
+    if (confirm("هل أنت متأكد من حذف هذه الخدمة نهائياً؟")) {
+        try {
+            await deleteDoc(doc(db, "services", id));
+            alert("تم حذف الخدمة بنجاح 🗑️");
+            openServices();
+        } catch(e) {
+            alert("فشل حذف الخدمة");
+        }
+    }
+};
 
 // =========================
 // 5. العروض (Offers)
@@ -364,7 +410,7 @@ async function openOrders() {
 }
 
 // =========================
-// 7. التذاكر (Tickets) - جديد
+// 7. التذاكر (Tickets)
 // =========================
 async function openTickets() {
     setActive(ticketsBtn);
@@ -416,7 +462,7 @@ async function openUsers() {
 }
 
 // =========================
-// 9. الإعدادات (Settings - معدلة)
+// 9. الإعدادات (Settings)
 // =========================
 async function openSettings() {
     setActive(settingsBtn);
