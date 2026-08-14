@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anas Store | متجر أنس</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background-color: #0f172a; color: #fff; margin: 0; padding: 0; padding-bottom: 80px; }
+        header { background-color: #0f172a; padding: 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #1e293b; }
+        .menu-btn { background: #1e293b; border: 1px solid #334155; color: #fff; font-size: 20px; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+        h1 { font-size: 18px; color: #3b82f6; margin: 0; display: flex; align-items: center; gap: 5px; }
+        main { padding: 16px; max-width: 600px; margin: 0 auto; }
+        .section-view { display: none; }
+        .section-view.active { display: block; }
+        
+        .user-info-section { margin-bottom: 15px; }
+        .welcome-user { font-size: 16px; color: #e2e8f0; margin-bottom: 10px; font-weight: bold; }
+        .stats-card { display: flex; gap: 10px; }
+        .stat-box { flex: 1; background: #1e293b; padding: 12px; border-radius: 12px; border: 1px solid #334155; text-align: center; }
+        .stat-title { font-size: 11px; color: #94a3b8; display: block; }
+        .stat-value { margin: 5px 0 0 0; font-size: 14px; font-weight: bold; }
+        
+        .search-box { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #1e293b; background-color: #1e293b; color: #fff; margin-bottom: 20px; box-sizing: border-box; outline: none; font-size: 14px; }
+        .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #fff; }
+        .cards-container { display: flex; flex-direction: column; gap: 16px; }
+        .card { background-color: #1e293b; padding: 16px; border-radius: 16px; border: 1px solid #334155; }
+        .card-title { font-size: 18px; font-weight: bold; color: #3b82f6; margin: 0 0 6px 0; }
+        .card-desc { font-size: 13px; color: #94a3b8; margin: 0 0 12px 0; }
+        
+        .toggle-packages-btn { background: #2563eb; color: white; border: none; width: 100%; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 14px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .packages-container { display: none; margin-top: 12px; border-top: 1px solid #334155; padding-top: 12px; }
+        .packages-container.active { display: block; }
+        .options-label { font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
+        .option-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 14px; border-radius: 10px; margin-top: 8px; border: 1px solid #1e293b; }
+        .option-title { font-size: 14px; color: #e2e8f0; }
+        .option-right { display: flex; align-items: center; gap: 12px; }
+        .option-price { font-size: 13px; color: #10b981; font-weight: bold; }
+        .order-btn { background-color: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        
+        .box { background: #1e293b; padding: 16px; border-radius: 14px; border: 1px solid #334155; margin-bottom: 15px; }
+        .payment-info { background: #0f172a; padding: 10px; border-radius: 8px; margin-top: 5px; font-size: 13px; white-space: pre-line; color: #e2e8f0; border: 1px solid #1e293b; }
+        input, select, textarea { width: 100%; padding: 12px; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 8px; outline: none; margin-top: 5px; margin-bottom: 12px; box-sizing: border-box; }
+        .btn { background: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .wa-btn { background: #25d366; color: white; text-decoration: none; display: block; text-align: center; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 10px; }
+        .order-card { background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-bottom: 12px; }
+        
+        .sidebar { position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background-color: #111827; box-shadow: -5px 0 15px rgba(0,0,0,0.5); transition: 0.3s ease; z-index: 1000; padding: 20px; box-sizing: border-box; border-left: 1px solid #1f2937; }
+        .sidebar.active { right: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 15px; margin-bottom: 20px; }
+        .close-btn { background: none; border: none; color: #94a3b8; font-size: 20px; cursor: pointer; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+        .sidebar-menu li a { display: block; padding: 12px 15px; background: #1e293b; color: #fff; text-decoration: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
+        .sidebar-menu li a:hover { background: #2563eb; }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); z-index: 900; display: none; }
+        .overlay.active { display: block; }
+        
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: #111827; border: 1px solid #334155; border-radius: 16px; padding: 20px; z-index: 1100; display: none; box-sizing: border-box; color: #fff; }
+        .modal.active { display: block; }
+        .close-modal-btn { background: #ef4444; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        
+        nav.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-item { text-align: center; font-size: 12px; color: #64748b; text-decoration: none; flex: 1; cursor: pointer; }
+        .nav-item.active { color: #3b82f6; font-weight: bold; }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <button class="menu-btn" id="openSidebar">☰</button>
+        <h1>🏠 Anas Store</h1>
+        <div style="width: 35px;"></div>
+    </header>
+
+    <div class="overlay" id="overlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2 style="color: #3b82f6; font-size: 18px; margin: 0;">قائمة المتجر</h2>
+            <button class="close-btn" id="closeSidebar">✕</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a onclick="switchSection('wallet-section')">💳 إضافة الأموال (المحفظة)</a></li>
+            <li><a onclick="switchSection('orders-section')">📦 طلباتي</a></li>
+            <li><a href="#" id="menuCoupon">🎟️ كوبون خصم</a></li>
+            <li><a onclick="switchSection('support-section')">💬 الدعم الفني والتذاكر</a></li>
+            <li><a id="logoutBtn" style="color: #ef4444;">🚪 تسجيل الخروج</a></li>
+        </ul>
+    </aside>
+
+    <div class="modal" id="authModal" style="z-index: 20000;">
+        <h3 id="authTitle" style="color: #3b82f6; text-align: center; margin-top: 0;">تسجيل الدخول للمتجر</h3>
+        <p style="text-align: center; font-size: 12px; color: #94a3b8; margin-bottom: 15px;">يجب تسجيل الدخول أو إنشاء حساب للمتابعة</p>
+        <div id="authError" style="color: #ef4444; font-size: 12px; margin-bottom: 10px; text-align: center;"></div>
+        
+        <div id="usernameFieldContainer" style="display: none;">
+            <label style="font-size: 12px; color: #94a3b8;">اسم المستخدم الخاص بك:</label>
+            <input type="text" id="authUsername" placeholder="مثال: anas_store" style="width:100%; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; margin-bottom:10px; box-sizing:border-box;">
+        </div>
+
+        <label style="font-size: 12px; color: #94a3b8;">البريد الإلكتروني:</label>
+        <input type="email" id="authEmail" placeholder="name@example.com" style="width:100%; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; margin-bottom:10px; box-sizing:border-box;">
+        
+        <label style="font-size: 12px; color: #94a3b8;">كلمة المرور:</label>
+        <input type="password" id="authPassword" placeholder="••••••••" style="width:100%; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; margin-bottom:5px; box-sizing:border-box;">
+        
+        <div style="text-align: left; margin-bottom: 15px;">
+            <a id="forgotPasswordLink" style="font-size: 12px; color: #3b82f6; text-decoration: none; cursor: pointer;">نسيت كلمة المرور؟</a>
+        </div>
+
+        <button id="authSubmitBtn" class="btn" style="margin-bottom: 10px;">دخول</button>
+        <p id="authSwitchText" style="text-align: center; font-size: 13px; color: #94a3b8; cursor: pointer; margin-bottom: 0;">ليس لديك حساب؟ <span style="color: #3b82f6; font-weight: bold;">إنشاء حساب جديد</span></p>
+    </div>
+
+    <div class="modal" id="serviceOrderModal">
+        <h3 id="modalServiceTitle">إتمام الطلب</h3>
+        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;" id="modalPackageInfo"></p>
+        <div id="dynamicFieldsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;"></div>
+        <button id="confirmServiceOrderBtn" style="background: #10b981; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 6px;">تأكيد ودفع الطلب</button>
+        <button class="close-modal-btn" id="closeServiceModalBtn">إلغاء</button>
+    </div>
+
+    <main>
+        <section id="home-section" class="section-view active">
+            <div class="user-info-section">
+                <div class="welcome-user" id="welcomeUserText">مرحباً 👋</div>
+                <div class="stats-card">
+                    <div class="stat-box">
+                        <span class="stat-title">💰 رصيدي</span>
+                        <h3 class="stat-value" id="balanceDisplay" style="color: #10b981;">0.00 $</h3>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-title">📊 الرصيد المنفق</span>
+                        <h3 class="stat-value" id="spentDisplay" style="color: #3b82f6;">0.00 $</h3>
+                    </div>
+                </div>
+            </div>
+
+            <input type="text" id="searchInput" placeholder="ابحث عن خدمة..." class="search-box">
+            <div class="section-title">الخدمات المتاحة ⭐</div>
+            <div id="services-container" class="cards-container">
+                <p style="text-align: center; color: #94a3b8;">جاري تحميل الخدمات...</p>
+            </div>
+        </section>
+
+        <section id="wallet-section" class="section-view">
+            <div class="box">
+                <h3 style="color: #3b82f6; margin-top: 0; font-size: 16px;">أرقام وحسابات الشحن</h3>
+                <div style="font-size: 12px; color: #94a3b8;">📞 ليبيانا:</div>
+                <div class="payment-info" id="walletLibyana">جاري التحميل...</div>
+                
+                <div style="font-size: 12px; color: #3b82f6; font-weight: bold; margin-top: 10px;">📱 المدار:</div>
+                <div class="payment-info" id="walletMadar">جاري التحميل...</div>
+
+                <div style="font-size: 12px; color: #3b82f6; font-weight: bold; margin-top: 10px;">🏦 التحويل المصرفي:</div>
+                <div class="payment-info" id="walletBank">جاري التحميل...</div>
+
+                <div style="font-size: 12px; color: #3b82f6; font-weight: bold; margin-top: 10px;">💎 محفظة USDT:</div>
+                <!-- حاوية عناوين USDT المتعددة مع زر النسخ -->
+                <div id="walletUsdtContainer" style="display:flex; flex-direction:column; gap:8px; margin-top:5px;">جاري التحميل...</div>
+
+                <div style="margin-top: 15px; padding: 12px; background: #0f172a; border-radius: 8px; border: 1px solid #334155; font-size: 13px; text-align: center;">
+                    <p style="margin: 0 0 8px 0; color: #f59e0b;">⚠️ في حال تأخر شحن الرصيد يرجى التواصل عبر واتساب:</p>
+                    <a id="waDirectBtn" href="#" target="_blank" class="wa-btn">💬 تواصل عبر واتساب للإسراع في الشحن</a>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3 style="color: #3b82f6; margin-top: 0; font-size: 16px;">إرسال طلب شحن جديد</h3>
+                <div id="depositForm">
+                    <label style="font-size: 12px; color: #94a3b8;">طريقة الدفع:</label>
+                    <select id="payMethod">
+                        <option value="ليبيانا">ليبيانا</option>
+                        <option value="المدار">المدار</option>
+                        <option value="تحويل مصرفي">تحويل مصرفي</option>
+                        <option value="USDT">USDT</option>
+                    </select>
+
+                    <label id="depositAmountLabel" style="font-size: 12px; color: #94a3b8;">القيمة (د.ل دينار ليبي):</label>
+                    <input type="number" step="0.01" id="depositAmount" placeholder="مثال: 10">
+
+                    <label style="font-size: 12px; color: #94a3b8;">رقم الهاتف أو الحساب المحول منه:</label>
+                    <input type="text" id="senderPhone" placeholder="مثال: 092xxxxxxx">
+
+                    <button id="submitDeposit" class="btn">إرسال طلب الشحن للأدمن</button>
+                </div>
+                <div id="successMsg" style="display: none; text-align: center; color: #10b981; font-weight: bold; padding: 15px;">
+                    ✅ تم إرسال طلب الشحن بنجاح وفي انتظار مراجعته.
+                </div>
+            </div>
+        </section>
+
+        <section id="orders-section" class="section-view">
+            <h2 style="color: #3b82f6; font-size: 18px; margin-top: 0;">📦 طلباتي السابقة</h2>
+            <div id="userOrdersList">
+                <p style="text-align: center; color: #94a3b8;">جاري تحميل طلباتك...</p>
+            </div>
+        </section>
+
+        <section id="support-section" class="section-view">
+            <div class="box">
+                <h3 style="color: #3b82f6; margin-top: 0; font-size: 16px;">التواصل السريع</h3>
+                <a id="waSupportLink" href="#" target="_blank" class="wa-btn" style="background: #25d366; margin-bottom: 8px;">💬 مراسلة عبر واتساب</a>
+                <a id="tgSupportLink" href="#" target="_blank" class="wa-btn" style="background: #0088cc;">✈️ مراسلة عبر تلجرام</a>
+            </div>
+
+            <div class="box">
+                <h3 style="color: #3b82f6; margin-top: 0; font-size: 16px;">إرسال تذكرة (تعويض / مشكلة)</h3>
+                <div id="ticketForm">
+                    <label style="font-size: 12px; color: #94a3b8;">نوع الطلب:</label>
+                    <select id="ticketType">
+                        <option value="طلب تعويض">طلب تعويض</option>
+                        <option value="مشكلة في خدمة">مشكلة في خدمة</option>
+                        <option value="استفسار عام">استفسار عام</option>
+                    </select>
+
+                    <label style="font-size: 12px; color: #94a3b8;">تفاصيل المشكلة أو الطلب:</label>
+                    <textarea id="ticketMsg" rows="4" placeholder="اكتب التفاصيل هنا بوضوح..."></textarea>
+
+                    <button id="sendTicket" class="btn">إرسال التذكرة للأدمن</button>
+                </div>
+                <div id="ticketSuccess" style="display: none; text-align: center; color: #10b981; font-weight: bold; padding: 15px;">
+                    ✅ تم إرسال تذكرتك بنجاح وسيتم الرد عليك قريباً.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <a onclick="switchSection('home-section')" class="nav-item active" id="nav-home"><span style="font-size: 16px;">🏠</span><br>الرئيسية</a>
+        <a onclick="switchSection('wallet-section')" class="nav-item" id="nav-wallet"><span style="font-size: 16px;">💳</span><br>المحفظة</a>
+        <a onclick="switchSection('orders-section')" class="nav-item" id="nav-orders"><span style="font-size: 16px;">🛒</span><br>الطلبات</a>
+        <a onclick="switchSection('support-section')" class="nav-item" id="nav-support"><span style="font-size: 16px;">💬</span><br>الدعم</a>
+    </nav>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, addDoc, setDoc, query, where, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBXc9eg8UlyhnV0Gd3CGkzv3tssTIXuF4Y",
+            authDomain: "anas-store-v2.firebaseapp.com",
+            projectId: "anas-store-v2",
+            storageBucket: "anas-store-v2.firebasestorage.app",
+            messagingSenderId: "16429154083",
+            appId: "1:16429154083:web:56def9cc95515c01821696"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUsername = "";
+        let exchangeRate = 5.48;
+        let selectedOrderData = null;
+        let isSignUpMode = false;
+        let allServicesData = [];
+
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const serviceOrderModal = document.getElementById('serviceOrderModal');
+        const authModal = document.getElementById('authModal');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const usersRef = collection(db, "users");
+                    const snap = await getDocs(query(usersRef, where("email", "==", user.email)));
+
+                    if (!snap.empty) {
+                        currentUsername = snap.docs[0].data().name;
+                    } else {
+                        currentUsername = user.email.split('@')[0];
+                    }
+                } catch(e) {
+                    currentUsername = user.email.split('@')[0];
+                }
+
+                document.getElementById('welcomeUserText').innerText = `مرحباً، ${currentUsername} 👋`;
+                authModal.classList.remove('active');
+                overlay.classList.remove('active');
+                fetchSettings();
+            } else {
+                currentUsername = "";
+                authModal.classList.add('active');
+                overlay.classList.add('active');
+            }
+        });
+
+        const switchText = document.getElementById('authSwitchText');
+        const usernameContainer = document.getElementById('usernameFieldContainer');
+
+        switchText.onclick = () => {
+            isSignUpMode = !isSignUpMode;
+            document.getElementById('authTitle').innerText = isSignUpMode ? "إنشاء حساب جديد" : "تسجيل الدخول للمتجر";
+            document.getElementById('authSubmitBtn').innerText = isSignUpMode ? "إنشاء الحساب" : "دخول";
+            usernameContainer.style.display = isSignUpMode ? "block" : "none";
+            switchText.innerHTML = isSignUpMode ? 'لديك حساب بالفعل؟ <span style="color: #3b82f6; font-weight: bold;">تسجيل الدخول</span>' : 'ليس لديك حساب؟ <span style="color: #3b82f6; font-weight: bold;">إنشاء حساب جديد</span>';
+        };
+
+        document.getElementById('authSubmitBtn').onclick = async () => {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+            const username = document.getElementById('authUsername').value.trim();
+            const errBox = document.getElementById('authError');
+            errBox.innerText = "";
+
+            if(!email || !password || (isSignUpMode && !username)) {
+                errBox.innerText = "الرجاء تعبئة جميع الحقول المطلوبة";
+                return;
+            }
+
+            try {
+                if (isSignUpMode) {
+                    const usersRef = collection(db, "users");
+                    const checkQuery = query(usersRef, where("name", "==", username));
+                    const checkSnap = await getDocs(checkQuery);
+
+                    if (!checkSnap.empty) {
+                        errBox.innerText = "اسم المستخدم هذا مستخدم مسبقاً، اختر اسمآ آخر";
+                        return;
+                    }
+
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    await addDoc(usersRef, {
+                        email: email,
+                        name: username,
+                        balance: 0,
+                        spent: 0
+                    });
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch(error) {
+                errBox.innerText = "فشل العملية: تأكد من صحة البيانات أو أن البريد مستخدم مسبقاً";
+            }
+        };
+
+        document.getElementById('forgotPasswordLink').onclick = async () => {
+            const email = document.getElementById('authEmail').value.trim();
+            const errBox = document.getElementById('authError');
+            errBox.innerText = "";
+
+            if(!email) {
+                errBox.innerText = "الرجاء كتابة البريد الإلكتروني في حقل البريد أعلاه أولاً";
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني 📩");
+            } catch(error) {
+                errBox.innerText = "فشل الإرسال: تأكد من أن البريد مسجل صحيحاً";
+            }
+        };
+
+        document.getElementById('logoutBtn').onclick = async () => {
+            await signOut(auth);
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+
+        window.switchSection = function(sectionId) {
+            document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            if(sectionId === 'home-section') document.getElementById('nav-home').classList.add('active');
+            if(sectionId === 'wallet-section') document.getElementById('nav-wallet').classList.add('active');
+            if(sectionId === 'orders-section') {
+                document.getElementById('nav-orders').classList.add('active');
+                loadUserOrders();
+            }
+            if(sectionId === 'support-section') document.getElementById('nav-support').classList.add('active');
+
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            window.scrollTo(0, 0);
+        }
+
+        async function fetchUserData() {
+            try {
+                const usersRef = collection(db, "users");
+                const snap = await getDocs(query(usersRef, where("name", "==", currentUsername)));
+                let balance = 0, spent = 0;
+                if (!snap.empty) {
+                    balance = snap.docs[0].data().balance || 0;
+                    spent = snap.docs[0].data().spent || 0;
+                } else {
+                    await addDoc(collection(db, "users"), {
+                        email: auth.currentUser ? auth.currentUser.email : "",
+                        name: currentUsername,
+                        balance: 0,
+                        spent: 0
+                    });
+                }
+                document.getElementById('balanceDisplay').innerText = `$${balance.toFixed(2)} (${(balance * exchangeRate).toFixed(2)} د.ل)`;
+                document.getElementById('spentDisplay').innerText = `$${spent.toFixed(2)} (${(spent * exchangeRate).toFixed(2)} د.ل)`;
+            } catch(e) {}
+        }
+
+        // دالة النسخ الفوري لعناوين USDT
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("تم نسخ العنوان بنجاح 📋✅");
+            }).catch(() => {
+                alert("فشل النسخ، يرجى النسخ يدوياً.");
+            });
+        };
+
+        async function fetchSettings() {
+            try {
+                const rateSnap = await getDoc(doc(db, "settings", "exchange"));
+                if (rateSnap.exists() && rateSnap.data().rate) exchangeRate = parseFloat(rateSnap.data().rate);
+
+                const genSnap = await getDoc(doc(db, "settings", "general"));
+                if(genSnap.exists()) {
+                    const data = genSnap.data();
+                    document.getElementById('walletLibyana').innerText = data.libyana || 'لا توجد أرقام';
+                    document.getElementById('walletMadar').innerText = data.madar || 'لا توجد أرقام';
+                    document.getElementById('walletBank').innerText = data.bankTransfer || 'لا توجد تفاصيل';
+                    
+                    // عرض عناوين USDT المتعددة مع زر النسخ
+                    let usdtHtml = "";
+                    if(data.usdtTRC20) {
+                        usdtHtml += `<div style="background:#0f172a; padding:10px; border-radius:8px; border:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center;">
+                            <div style="overflow:hidden; width:80%;">
+                                <div style="font-size:11px; color:#94a3b8; margin-bottom:3px;">شبكة Tron (TRC20):</div>
+                                <div style="font-size:12px; color:#fff; word-break:break-all;">${data.usdtTRC20}</div>
+                            </div>
+                            <button onclick="copyToClipboard('${data.usdtTRC20}')" style="background:#3b82f6; border:none; border-radius:6px; padding:6px 10px; color:#fff; cursor:pointer; font-size:12px; font-weight:bold;">نسخ</button>
+                        </div>`;
+                    }
+                    if(data.usdtBEP20) {
+                        usdtHtml += `<div style="background:#0f172a; padding:10px; border-radius:8px; border:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center;">
+                            <div style="overflow:hidden; width:80%;">
+                                <div style="font-size:11px; color:#94a3b8; margin-bottom:3px;">شبكة Smart Chain (BEP20):</div>
+                                <div style="font-size:12px; color:#fff; word-break:break-all;">${data.usdtBEP20}</div>
+                            </div>
+                            <button onclick="copyToClipboard('${data.usdtBEP20}')" style="background:#3b82f6; border:none; border-radius:6px; padding:6px 10px; color:#fff; cursor:pointer; font-size:12px; font-weight:bold;">نسخ</button>
+                        </div>`;
+                    }
+                    
+                    document.getElementById('walletUsdtContainer').innerHTML = usdtHtml || '<div class="payment-info">لا توجد عناوين مضافة حالياً</div>';
+
+                    if(data.whatsapp) {
+                        document.getElementById('waDirectBtn').href = `https://wa.me/${data.whatsapp}?text=مرحباً، لقد قمت بالتحويل ولم يتم شحن الرصيد بعد.`;
+                        document.getElementById('waSupportLink').href = `https://wa.me/${data.whatsapp}`;
+                    }
+                    if(data.telegram) {
+                        document.getElementById('tgSupportLink').href = `https://t.me/${data.telegram}`;
+                    }
+                }
+            } catch (e) {}
+            fetchUserData();
+            loadStoreServices();
+        }
+
+        document.getElementById('openSidebar').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
+        document.getElementById('closeSidebar').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+        
+        overlay.onclick = () => { 
+            if(!authModal.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                serviceOrderModal.classList.remove('active');
+            }
+        };
+        document.getElementById('closeServiceModalBtn').onclick = () => { serviceOrderModal.classList.remove('active'); overlay.classList.remove('active'); };
+
+        // تغيير التسمية حسب طريقة الدفع
+        document.getElementById('payMethod').addEventListener('change', function() {
+            const lbl = document.getElementById('depositAmountLabel');
+            lbl.innerText = this.value === 'USDT' ? "القيمة ($ دولار):" : "القيمة (د.ل دينار ليبي):";
+        });
+
+        document.getElementById('submitDeposit').onclick = async () => {
+            const method = document.getElementById('payMethod').value;
+            let inputAmount = parseFloat(document.getElementById('depositAmount').value);
+            const sender = document.getElementById('senderPhone').value;
+
+            if(!inputAmount || !sender) return alert("أدخل القيمة ورقم الهاتف المحول منه");
+            const btn = document.getElementById('submitDeposit');
+            btn.disabled = true;
+
+            let finalAmountUSD = inputAmount;
+            let detailsExtra = "";
+            if (method !== "USDT") {
+                finalAmountUSD = parseFloat((inputAmount / exchangeRate).toFixed(2));
+                detailsExtra = ` (القيمة التي حولها الزبون: ${inputAmount} د.ل)`;
+            }
+
+            try {
+                const orderId = Math.floor(100000 + Math.random() * 900000).toString();
+
+                await setDoc(doc(db, "orders", orderId), {
+                    type: "طلب شحن رصيد",
+                    details: `طريقة الدفع: ${method} | المحول منه: ${sender}${detailsExtra}`,
+                    amount: finalAmountUSD,
+                    user: currentUsername,
+                    status: "قيد المعالجة",
+                    createdAt: new Date()
+                });
+                document.getElementById('depositForm').style.display = 'none';
+                document.getElementById('successMsg').style.display = 'block';
+            } catch(e) { btn.disabled = false; }
+        };
+
+        async function loadUserOrders() {
+            const list = document.getElementById('userOrdersList');
+            list.innerHTML = `<p style="text-align: center; color: #94a3b8;">جاري التحميل...</p>`;
+            try {
+                const snap = await getDocs(query(collection(db, "orders"), where("user", "==", currentUsername)));
+                if(snap.empty) {
+                    list.innerHTML = `<p style="text-align: center; color: #94a3b8;">لا توجد طلبات سابقة.</p>`;
+                    return;
+                }
+                list.innerHTML = '';
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const orderId = docSnap.id;
+                    let color = "#f59e0b";
+                    if(d.status === "مكتمل") color = "#10b981";
+                    if(d.status === "مرفوض" || d.status === "ملغي") color = "#ef4444";
+
+                    let dateStr = "غير محدد";
+                    if(d.createdAt && d.createdAt.seconds) {
+                        const date = new Date(d.createdAt.seconds * 1000);
+                        dateStr = date.toLocaleDateString('ar-LY') + ' ' + date.toLocaleTimeString('ar-LY', {hour: '2-digit', minute:'2-digit'});
+                    }
+
+                    let cancelBtn = "";
+                    if(d.status === "قيد المعالجة") {
+                        cancelBtn = `<button onclick="cancelUserOrder('${orderId}')" style="background:#ef4444; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold;">❌ إلغاء الطلب</button>`;
+                    }
+
+                    list.innerHTML += `
+                        <div class="order-card">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                <strong style="color:#3b82f6;">${d.type || 'طلب'} (#${orderId})</strong>
+                                <span style="color:${color}; font-weight:bold; font-size:13px;">${d.status || 'قيد المعالجة'}</span>
+                            </div>
+                            <p style="margin:4px 0; color:#94a3b8; font-size:12px;">📅 التاريخ: ${dateStr}</p>
+                            <p style="margin:6px 0; color:#fff; font-size:14px;">🎯 المطلوب: ${d.details || ''}</p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                                <span style="color:#10b981; font-weight:bold; font-size:13px;">المبلغ: $${d.amount || 0}</span>
+                                ${cancelBtn}
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch(e) { list.innerHTML = `<p style="text-align: center; color: #ef4444;">فشل التحميل.</p>`; }
+        }
+
+        window.cancelUserOrder = async function(orderId) {
+            if(confirm("هل أنت متأكد من إلغاء هذا الطلب وإرجاع المبلغ إلى المحفظة؟")) {
+                try {
+                    const orderRef = doc(db, "orders", orderId);
+                    const orderSnap = await getDoc(orderRef);
+                    if (!orderSnap.exists()) return alert("الطلب غير موجود");
+                    const orderData = orderSnap.data();
+                    
+                    if (orderData.type !== "طلب شحن رصيد") {
+                        const refundAmount = orderData.amount || 0;
+                        const usersRef = collection(db, "users");
+                        const userSnap = await getDocs(query(usersRef, where("name", "==", currentUsername)));
+                        if (!userSnap.empty) {
+                            const userDoc = userSnap.docs[0];
+                            const currentBalance = userDoc.data().balance || 0;
+                            const currentSpent = userDoc.data().spent || 0;
+
+                            await updateDoc(userDoc.ref, {
+                                balance: currentBalance + refundAmount,
+                                spent: Math.max(0, currentSpent - refundAmount)
+                            });
+                            fetchUserData();
+                        }
+                    }
+
+                    await deleteDoc(orderRef);
+                    loadUserOrders();
+                    alert("تم إلغاء الطلب بنجاح ✅");
+                } catch(e) {
+                    alert("فشل إلغاء الطلب");
+                }
+            }
+        };
+
+        document.getElementById('sendTicket').onclick = async () => {
+            const type = document.getElementById('ticketType').value;
+            const message = document.getElementById('ticketMsg').value.trim();
+            if(!message) return alert("الرجاء كتابة تفاصيل التذكرة");
+            const btn = document.getElementById('sendTicket');
+            btn.disabled = true;
+            try {
+                await addDoc(collection(db, "tickets"), {
+                    type: type, message: message, user: currentUsername, status: "قيد المراجعة", createdAt: new Date()
+                });
+                document.getElementById('ticketForm').style.display = 'none';
+                document.getElementById('ticketSuccess').style.display = 'block';
+            } catch(e) { btn.disabled = false; }
+        };
+
+        document.getElementById('menuCoupon').onclick = async (e) => {
+            e.preventDefault();
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            const codeInput = prompt("أدخل كود الخصم:");
+            if(!codeInput) return;
+            try {
+                const snap = await getDocs(query(collection(db, "offers"), where("code", "==", codeInput.trim())));
+                if(snap.empty) return alert("الكود غير موجود ❌");
+                const offer = snap.docs[0].data();
+                if((offer.usedCount || 0) >= (offer.limit || 0)) return alert("وصل الكود للحد الأقصى ❌");
+                await updateDoc(snap.docs[0].ref, { usedCount: (offer.usedCount || 0) + 1 });
+                alert(`تم تفعيل الكوبون بنجاح! قيمة الخصم: ${offer.discount} 🎉`);
+            } catch(e) { alert("حدث خطأ"); }
+        };
+
+        async function loadStoreServices() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "services"));
+                allServicesData = [];
+                querySnapshot.forEach((docSnap) => {
+                    allServicesData.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderServices(allServicesData);
+            } catch (e) {
+                document.getElementById('services-container').innerHTML = `<p style="text-align: center; color: #ef4444;">فشل تحميل الخدمات.</p>`;
+            }
+        }
+
+        function renderServices(services) {
+            const container = document.getElementById('services-container');
+            if (services.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: #94a3b8;">لا توجد خدمات مطابقة للبحث.</p>`;
+                return;
+            }
+            container.innerHTML = '';
+            services.forEach((data, index) => {
+                const serviceId = data.id;
+                let optionsHtml = "";
+                if (data.options) {
+                    data.options.forEach((opt) => {
+                        const priceUSD = parseFloat(opt.price) || 0;
+                        optionsHtml += `
+                            <div class="option-item">
+                                <span class="option-title">${opt.title}</span>
+                                <div class="option-right">
+                                    <span class="option-price">$${priceUSD} (${(priceUSD * exchangeRate).toFixed(2)} د.ل)</span>
+                                    <button class="order-btn" onclick='openServiceOrderModal(${JSON.stringify(serviceId)}, ${JSON.stringify(data.name)}, ${JSON.stringify(opt.title)}, ${priceUSD}, ${JSON.stringify(data.requiredFields || [])})'>اطلب الآن</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                container.innerHTML += `
+                    <div class="card">
+                        <div class="card-title">${index + 1}. ${data.name}</div>
+                        <div class="card-desc">${data.description || 'خدمة رقمية سريعة ومضمونة'}</div>
+                        <button class="toggle-packages-btn" onclick="togglePackages('${serviceId}')">عرض الباقات والأسعار 🔽</button>
+                        <div id="packages-${serviceId}" class="packages-container">
+                            <div class="options-label">اختر الباقة المناسبة:</div>
+                            ${optionsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            const filtered = allServicesData.filter(s => 
+                s.name.toLowerCase().includes(term) || 
+                (s.description && s.description.toLowerCase().includes(term))
+            );
+            renderServices(filtered);
+        });
+
+        window.togglePackages = function(serviceId) {
+            document.getElementById(`packages-${serviceId}`).classList.toggle('active');
+        }
+
+        window.openServiceOrderModal = function(serviceId, serviceName, packageTitle, amountUSD, requiredFields) {
+            selectedOrderData = { serviceId, serviceName, packageTitle, amountUSD };
+            document.getElementById('modalServiceTitle').innerText = serviceName;
+            document.getElementById('modalPackageInfo').innerText = `الباقة: ${packageTitle} | السعر: $${amountUSD}`;
+            const fieldsContainer = document.getElementById('dynamicFieldsContainer');
+            fieldsContainer.innerHTML = '';
+            if (requiredFields && requiredFields.length > 0) {
+                requiredFields.forEach((field, i) => {
+                    fieldsContainer.innerHTML += `<div><label style="font-size:12px; color:#94a3b8; display:block; margin-bottom:3px;">${field}:</label><input type="text" id="req-field-${i}" placeholder="أدخل ${field}" style="width:100%; padding:10px; background:#1e293b; color:#fff; border:1px solid #334155; border-radius:8px; outline:none; box-sizing:border-box;"></div>`;
+                });
+            } else {
+                fieldsContainer.innerHTML = `<p style="font-size:13px; color:#10b981;">لا توجد متطلبات خاصة لهذه الخدمة.</p>`;
+            }
+            serviceOrderModal.classList.add('active');
+            overlay.classList.add('active');
+        }
+
+        document.getElementById('confirmServiceOrderBtn').onclick = async () => {
+            if(!selectedOrderData) return;
+            const { serviceName, packageTitle, amountUSD } = selectedOrderData;
+            
+            let detailsText = `${packageTitle}`;
+            const inputs = document.querySelectorAll('#dynamicFieldsContainer input');
+            let inputsFilled = true;
+            inputs.forEach(input => {
+                if(!input.value.trim()) inputsFilled = false;
+                detailsText += ` | ${input.previousElementSibling.innerText}: ${input.value.trim()}`;
+            });
+            if(!inputsFilled) return alert("الرجاء تعبئة جميع الحقول المطلوبة!");
+
+            try {
+                const usersRef = collection(db, "users");
+                const snap = await getDocs(query(usersRef, where("name", "==", currentUsername)));
+                if (snap.empty) return alert("يرجى شحن المحفظة أولاً!");
+
+                const userDoc = snap.docs[0];
+                const balance = userDoc.data().balance || 0;
+                const spent = userDoc.data().spent || 0;
+
+                if (balance < amountUSD) return alert(`رصيد المحفظة غير كافٍ ($${balance.toFixed(2)}).`);
+
+                await updateDoc(userDoc.ref, { balance: balance - amountUSD, spent: spent + amountUSD });
+                fetchUserData();
+
+                const orderId = Math.floor(100000 + Math.random() * 900000).toString();
+
+                await setDoc(doc(db, "orders", orderId), {
+                    type: serviceName,
+                    details: detailsText,
+                    amount: amountUSD,
+                    user: currentUsername,
+                    status: "قيد المعالجة",
+                    createdAt: new Date()
+                });
+                
+                alert('تم تنفيذ الطلب بنجاح وإرساله للأدمن للمراجعة ✅');
+                serviceOrderModal.classList.remove('active');
+                overlay.classList.remove('active');
+            } catch(e) { alert('فشل تنفيذ الطلب'); }
+        }
+    </script>
+</body>
+
+</html>
